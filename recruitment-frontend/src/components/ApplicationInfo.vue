@@ -9,7 +9,7 @@
         variant="text" 
         color="primary" 
         prepend-icon="mdi-pencil"
-        @click="isEditing = true"
+        @click="startEdit"
       >
         {{ t.editButtonLabel || 'Edit' }}
       </v-btn>
@@ -123,9 +123,10 @@ const isEditing = ref(false);
 
 const originalPersonalInfo = ref<any>(null);
 
-onMounted(async () => {
-  saveOriginalState();
-});
+  const startEdit = () => {
+    saveOriginalState()
+    isEditing.value = true
+  }
 
 const saveOriginalState = () => {
   originalPersonalInfo.value = JSON.parse(
@@ -141,6 +142,7 @@ const isDirty = computed(() => {
 
 const cancelEdit = () => {
   // Restore original data and exit edit mode
+  console.log("originalState: ", originalPersonalInfo)
   applicationStore.personalInfo = JSON.parse(JSON.stringify(originalPersonalInfo.value));
   isEditing.value = false;
   error.value = null;
