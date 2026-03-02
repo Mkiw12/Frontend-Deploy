@@ -25,7 +25,7 @@ app.use(cors({
   origin: process.env.FRONTEND_URL || "http://localhost:5173", // <-- put your frontend URL/port here
   credentials: true
 }));
-s
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
