@@ -108,13 +108,6 @@ We intend to host both the front-end and back-end using heroku but have not fina
     │   └── favicon.ico
     │
     ├── cypress/
-    │   ├── e2e/
-    │   │   └── example.cy.ts
-    │   ├── fixtures/
-    │   │   └── example.json
-    │   └── support/
-    │       ├── commands.ts
-    │       └── e2e.ts
     │
     └── src/
         ├── main.ts
@@ -167,9 +160,6 @@ We intend to host both the front-end and back-end using heroku but have not fina
         ├── utility/
         │   ├── applicationsResponseHandler.ts
         │   └── personNumber.ts
-        │
-        └── __tests__/
-            └── App.spec.ts
 ```
 
 # Local development setup
