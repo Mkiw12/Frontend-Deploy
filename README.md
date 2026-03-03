@@ -258,3 +258,20 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 router.push("/profile");
 ```
+### Integrating the Pinia reactive state store
+The app uses Pinia for its reactive state management. This means that if you want access to reactive objects you must first create a store (or re-use other stores if the concerns overlap) in the /src/stores/ folder. These stores implement a state, actions and getters. Follow the examples in the previous files or visit the official Pinia documentation to see syntax rules. 
+
+To use the reactive values from our stores in a component, we import them in the script section of our .vue files and then make sure we let the component know that they are reactive and need to be continuously computed. There are many ways to accomplish this using Vue, but one example you can follow is:
+
+ ```text
+//first import the store
+import { useApplicationsStore } from "@/stores/applicationsStore";
+//instantiate it
+const store = useApplicationsStore();
+//call an action in the store
+store.fetchAllApplications();
+//read a value from the store reactively, in this case array of DTOs
+const applications = computed<ApplicationDTO[] | null>(() => store.applicationsResult);
+```
+
+This assures that the const "applications" exposed to the template section of the Vue component is both fetched from the store and updated whenever changed, such that those changes are immediately reflected on the page where the applications are displayed.
