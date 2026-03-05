@@ -1,16 +1,21 @@
 /**
  * @file authLogoutRoute.test.js
- * @description Tests for POST /auth/logout endpoint
+ * @description Integration tests for POST /auth/logout
  * 
- * This file tests the logout HTTP endpoint using supertest.
- * The logout is a simple route that clears the auth cookie.
+ * This file tests the authLogoutRoute test suite.
+ * System under test: ../../src/routes/auth
+ * 
+ * Endpoints covered:
+ * - POST /auth/logout
+ * 
+ * Functions/behaviors tested:
+ * - (see describe blocks)
  * 
  * Test scenarios:
- * - Returns 200 and clears auth cookie
+ * - clears auth cookie on logout
  * 
- * @route POST /auth/logout
+ * @route authLogoutRoute
  */
-
 const request = require("supertest");
 const app = require("../../server");
 

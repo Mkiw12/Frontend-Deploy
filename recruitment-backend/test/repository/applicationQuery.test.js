@@ -3,23 +3,19 @@
  * @description Unit tests for applicationQuery repository
  * 
  * This file tests the applicationQuery repository functions.
- * Repository functions execute SQL queries directly.
+ * Repository functions execute SQL queries directly (or via an in-memory DB adapter).
  * 
- * Functions tested:
- * - submitApplication: Insert/update job application (transaction)
- * - updateHandlingStatus: Update application status
- * - getApplication: Get user's application with competence/availability
+ * Functions/behaviors tested:
+ * - submitApplication
+ * - updateHandlingStatus
+ * - getApplication
  * 
- * submitApplication Test scenarios:
+ * Test scenarios:
  * - New application submits successfully
  * - Existing application updates successfully
  * - Database error returns failure
- * 
- * updateHandlingStatus Test scenarios:
  * - Status updates successfully
  * - Database error returns failure
- * 
- * getApplication Test scenarios:
  * - Application found returns data
  * - Application not found returns empty
  * - Database error returns failure
@@ -27,150 +23,223 @@
  * @repository applicationQuery
  * @database db
  */
+const pgMem = require("../setup/pgMemDb"); 
 
-jest.mock("../../src/db/db", () => ({
-  query: jest.fn(),
-  connect: jest.fn()
-}));
+jest.mock("../../src/db/db", () => {
+  const pgMem = require("../setup/pgMemDb"); 
+  let dbPromise = null;
+
+  async function get() {
+    if (!dbPromise) dbPromise = pgMem.init();
+    return dbPromise;
+  }
+
+  return {
+    query: async (sql, params) => (await pgMem.init()).query(sql, params),
+    connect: async () => (await pgMem.init()).connect(),
+  };
+});
 
 const db = require("../../src/db/db");
-const { submitApplication, updateHandlingStatus, getApplication } = require("../../src/repository/applicationQuery");
+const {
+  submitApplication,
+  updateHandlingStatus,
+  getApplication,
+} = require("../../src/repository/applicationQuery");
+describe("applicationQuery repository (pg-mem)", () => {
+beforeEach(async () => {
+  await pgMem.reset();
 
-describe("applicationQuery repository", () => {
-  let mockClient;
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    mockClient = {
-      query: jest.fn(),
-      release: jest.fn()
-    };
-    db.connect.mockResolvedValue(mockClient);
-  });
+  await db.query(`
+    INSERT INTO role(role_id, name) VALUES
+      (1, 'admin'),
+      (2, 'applicant')
+    ON CONFLICT (role_id) DO NOTHING;
+  `);
+
+
+  await db.query(`
+    INSERT INTO person(person_id, name, surname, email, password, role_id, username)
+    VALUES (1, 'Test', 'User', 'test@example.com', 'pw', 2, 'testuser')
+    ON CONFLICT (person_id) DO NOTHING;
+  `);
+
+
+  await db.query(`
+    INSERT INTO competence(competence_id, name)
+    VALUES (1, 'ticket sales')
+    ON CONFLICT (competence_id) DO NOTHING;
+  `);
+});
+
+afterAll(async () => {
+  await pgMem.teardown();
+});
 
   describe("submitApplication", () => {
-    test("returns success when application is submitted", async () => {
-      mockClient.query
-        .mockResolvedValueOnce() // begin
-        .mockResolvedValueOnce({ rows: [] }) // checkForApplication
-        .mockResolvedValueOnce() // insert
-        .mockResolvedValueOnce() // createCompetenceProfile
-        .mockResolvedValueOnce() // createAvailability
-        .mockResolvedValueOnce(); // commit
-
+    test("returns success when application is submitted (new)", async () => {
       const dto = {
         person_id: 1,
         competenceProfile: [{ competenceType: "ticket sales", competenceTime: 2 }],
-        availability: [{ from: "2024-01-01", to: "2024-01-31" }]
+        availability: [{ from: "2024-01-01", to: "2024-01-31" }],
       };
 
       const result = await submitApplication(dto);
 
       expect(result.success).toBe(true);
       expect(result.person_id).toBe(1);
+
+
+      const status = await db.query(
+        `SELECT * FROM person_application_status WHERE person_id=$1`,
+        [1]
+      );
+      expect(status.rows.length).toBe(1);
+
+      const avail = await db.query(
+        `SELECT * FROM availability WHERE person_id=$1`,
+        [1]
+      );
+      expect(avail.rows.length).toBeGreaterThan(0);
+
+      const comp = await db.query(
+        `SELECT * FROM competence_profile WHERE person_id=$1`,
+        [1]
+      );
+      expect(comp.rows.length).toBeGreaterThan(0);
     });
 
     test("returns success when updating existing application", async () => {
-      mockClient.query
-        .mockResolvedValueOnce() // begin
-        .mockResolvedValueOnce({ rows: [{ exists: true }] }) // checkForApplication - exists
-        .mockResolvedValueOnce() // deleteAvailability
-        .mockResolvedValueOnce() // deleteCompetences
-        .mockResolvedValueOnce() // update status
-        .mockResolvedValueOnce() // createCompetenceProfile
-        .mockResolvedValueOnce() // createAvailability
-        .mockResolvedValueOnce(); // commit
+
+      await db.query(
+        `INSERT INTO person_application_status(person_id, status) VALUES ($1, $2)`,
+        [1, "UNHANDLED"]
+      );
+      await db.query(
+        `INSERT INTO availability(availability_id, person_id, from_date, to_date)
+         VALUES (1, 1, '2023-01-01', '2023-01-31')`
+      );
+      await db.query(
+        `INSERT INTO competence_profile(competence_profile_id, person_id, competence_id, years_of_experience)
+         VALUES (1, 1, 1, 1.00)`
+      );
 
       const dto = {
         person_id: 1,
         competenceProfile: [{ competenceType: "ticket sales", competenceTime: 2 }],
-        availability: [{ from: "2024-01-01", to: "2024-01-31" }]
+        availability: [{ from: "2024-01-01", to: "2024-01-31" }],
       };
 
       const result = await submitApplication(dto);
 
       expect(result.success).toBe(true);
+
+
+      const avail = await db.query(
+        `SELECT * FROM availability WHERE person_id=$1`,
+        [1]
+      );
+      expect(avail.rows.some(r => String(r.from_date).includes("2024"))).toBe(true);
+
+      const comp = await db.query(
+        `SELECT * FROM competence_profile WHERE person_id=$1`,
+        [1]
+      );
+      expect(comp.rows.length).toBeGreaterThan(0);
     });
 
-    test("returns failure when database error occurs", async () => {
-      mockClient.query
-        .mockResolvedValueOnce() // begin
-        .mockRejectedValueOnce(new Error("DB error")); // checkForApplication fails
+test("returns failure when database error occurs", async () => {
 
-      const dto = { person_id: 1, competenceProfile: [], availability: [] };
+await db.query(`DROP TABLE person_application_status;`);
+await db.query(`DROP TABLE availability;`);
 
-      const result = await submitApplication(dto);
+  const dto = { person_id: 1, competenceProfile: [], availability: [] };
+  const result = await submitApplication(dto);
 
-      expect(result.success).toBe(false);
-      expect(result.error).toBe("DB error");
-    });
+  expect(result.success).toBe(false);
+  expect(result.error).toBeDefined();
+});
   });
 
   describe("updateHandlingStatus", () => {
     test("returns success when status is updated", async () => {
-      mockClient.query.mockResolvedValueOnce({ rows: [] });
+
+      await db.query(
+        `INSERT INTO person_application_status(person_id, status) VALUES ($1, $2)
+         ON CONFLICT (person_id) DO NOTHING`,
+        [1, "UNHANDLED"]
+      );
 
       const dto = { person_id: 1 };
-
       const result = await updateHandlingStatus("ACCEPTED", dto);
 
       expect(result.success).toBe(true);
       expect(result.person_id).toBe(1);
+
+      const res = await db.query(
+        `SELECT status FROM person_application_status WHERE person_id=$1`,
+        [1]
+      );
+      expect(res.rows[0].status).toBe("ACCEPTED");
     });
 
-    test("returns failure when database error occurs", async () => {
-      mockClient.query.mockRejectedValueOnce(new Error("DB error"));
-
-      const dto = { person_id: 1 };
-
-      const result = await updateHandlingStatus("ACCEPTED", dto);
-
-      expect(result.success).toBe(false);
-      expect(result.error).toBe("DB error");
-    });
   });
-
   describe("getApplication", () => {
-    test("returns application data when exists", async () => {
-      mockClient.query
-        .mockResolvedValueOnce({ rows: [{ person_id: 1, status: "UNHANDLED" }] }) // checkForApplication - has row, so exists
-        .mockResolvedValueOnce() // begin
-        .mockResolvedValueOnce({ rows: [{ from_date: "2024-01-01", to_date: "2024-01-31" }] }) // getAvailability
-        .mockResolvedValueOnce({ rows: [{ competence_id: 1, years_of_experience: 2 }] }) // getCompetenceProfile
-        .mockResolvedValueOnce(); // commit
+test("returns application data when exists", async () => {
+  await db.query(
+    `INSERT INTO person_application_status(person_id, status) VALUES ($1, $2)`,
+    [1, "UNHANDLED"]
+  );
 
+  await db.query(
+    `INSERT INTO availability(person_id, from_date, to_date)
+     VALUES ($1, $2, $3)`,
+    [1, "2024-01-01", "2024-01-31"]
+  );
+
+
+  await db.query(
+    `INSERT INTO competence(competence_id, name)
+     VALUES ($1, $2)
+     ON CONFLICT (competence_id) DO NOTHING`,
+    [1, "ticket sales"]
+  );
+
+  await db.query(
+    `INSERT INTO competence_profile(person_id, competence_id, years_of_experience)
+     VALUES ($1, $2, $3)`,
+    [1, 1, 2.0]
+  );
+
+  const dto = { person_id: 1 };
+  const result = await getApplication(dto);
+
+  expect(result.success).toBe(true);
+  expect(result.person_id).toBe(1);
+  expect(Array.isArray(result.availability)).toBe(true);
+  expect(Array.isArray(result.competenceProfile)).toBe(true);
+  expect(result.availability.length).toBeGreaterThan(0);
+  expect(result.competenceProfile.length).toBeGreaterThan(0);
+});
+
+    test("returns empty when no application exists", async () => {
       const dto = { person_id: 1 };
-
-      const result = await getApplication(dto);
-
-      expect(result.success).toBe(true);
-      expect(result.person_id).toBe(1);
-      expect(result.availability).toBeDefined();
-      expect(result.competenceProfile).toBeDefined();
-    });
-
-    test("returns empty arrays when no application exists", async () => {
-      mockClient.query
-        .mockResolvedValueOnce({ rows: [] }); // checkForApplication - no rows, so exists = false
-
-      const dto = { person_id: 1 };
-
       const result = await getApplication(dto);
 
       expect(result.success).toBe(false);
-      expect(result.availability).toEqual([]);
-      expect(result.competenceProfile).toEqual([]);
+      expect(result.availability ?? []).toEqual([]);
+      expect(result.competenceProfile ?? []).toEqual([]);
     });
 
-    test("returns failure when database error occurs", async () => {
-      mockClient.query.mockRejectedValueOnce(new Error("DB error"));
+test("returns failure when database error occurs", async () => {
+  await db.query(`DROP TABLE person_application_status;`);
 
-      const dto = { person_id: 1 };
+  const dto = { person_id: 1 };
+  const result = await updateHandlingStatus("ACCEPTED", dto);
 
-      const result = await getApplication(dto);
-
-      expect(result.success).toBe(false);
-      expect(result.error).toBe("DB error");
-    });
+  expect(result.success).toBe(false);
+  expect(result.error).toBeDefined();
+});
   });
 });

@@ -1,19 +1,22 @@
 /**
  * @file authUpgradeRoute.test.js
- * @description Tests for POST /auth/upgrade endpoint
+ * @description Integration tests for POST /auth/upgrade
  * 
- * This file tests the account upgrade HTTP endpoint using supertest.
- * It mocks the authController.upgradeAccount function.
- * Used to upgrade legacy users to full accounts.
+ * This file tests the authUpgradeRoute test suite.
+ * System under test: ../../src/routes/auth
+ * 
+ * Endpoints covered:
+ * - POST /auth/upgrade
+ * 
+ * Functions/behaviors tested:
+ * - (see describe blocks)
  * 
  * Test scenarios:
- * - Invalid upgrade code returns 401
- * - Successful upgrade returns 200
+ * - returns 200 when upgrade succeeds
+ * - returns 401 when not authenticated
  * 
- * @route POST /auth/upgrade
- * @controller authController.upgradeAccount
+ * @route authUpgradeRoute
  */
-
 jest.mock("../../src/controllers/authController", () => ({
   upgradeAccount: jest.fn()
 }));

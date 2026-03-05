@@ -1,17 +1,23 @@
 /**
  * @file authLoginRoute.test.js
- * @description Tests for POST /auth/login endpoint
+ * @description Integration tests for POST /auth/login
  * 
- * This file tests the login HTTP endpoint using supertest.
- * It mocks the authController.login function to control test scenarios.
+ * This file tests the authLoginRoute test suite.
+ * System under test: ../../src/controllers/authController
+ * 
+ * Endpoints covered:
+ * - POST /auth/login
+ * 
+ * Functions/behaviors tested:
+ * - (see describe blocks)
  * 
  * Test scenarios:
- * - Missing username returns 400
- * - Invalid credentials returns 401
- * - Successful login returns 200 with user and cookie
+ * - returns 400 when username is missing
+ * - returns 401 when credentials are invalid
+ * - returns 200 with user on successful login
+ * - sets auth cookie on successful login
  * 
- * @route POST /auth/login
- * @controller authController.login
+ * @route authLoginRoute
  */
 
 jest.mock("../../src/controllers/authController", () => ({

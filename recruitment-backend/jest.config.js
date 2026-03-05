@@ -8,5 +8,8 @@ module.exports = {
   coverageDirectory: 'test/coverage',
   verbose: true,
   clearMocks: true,
-  transform: {}
+  haste: {
+    enableSymlinks: true,
+  },
+    watchman: false,
 };

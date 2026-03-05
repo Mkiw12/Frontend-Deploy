@@ -1,3 +1,33 @@
+/**
+ * @file applicationsRoute.test.js
+ * @description Integration tests for GET /applications/all, GET /applications/2, POST /applications, POST /applications/personal-info, PUT /applications/1/status
+ * 
+ * This file tests the applicationsRoute test suite.
+ * System under test: ../../src/routes/applications
+ * 
+ * Endpoints covered:
+ * - GET /applications/all
+ * - GET /applications/2
+ * - POST /applications
+ * - POST /applications/personal-info
+ * - PUT /applications/1/status
+ * 
+ * Functions/behaviors tested:
+ * - (see describe blocks)
+ * 
+ * Test scenarios:
+ * - returns 200 with applications for recruiter
+ * - returns 403 for applicant role
+ * - returns 200 when status updated successfully
+ * - returns 400 for invalid status
+ * - returns 200 when application submitted successfully
+ * - returns 200 with application data
+ * - returns 200 when personal info updated
+ * 
+ * @route applicationsRoute
+ */
+
+
 process.env.JWT_SECRET = "test-secret";
 
 const jwt = require("jsonwebtoken");
