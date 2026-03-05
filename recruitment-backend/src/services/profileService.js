@@ -1,5 +1,5 @@
 const db = require("../db/db")
-const { submitApplication, updateHandlingStatus,  updateApplication, getApplication } = require("../repository/applicationQuery")
+const { submitApplication, updateHandlingStatus,  updateApplication, getApplication } = require("../repository/profileQuery")
 
 
 const applicationStat = {

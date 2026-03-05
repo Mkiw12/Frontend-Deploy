@@ -2,7 +2,7 @@
   <v-card class="mx-auto pa-12 pb-8" elevation="8" max-width="500" rounded="lg">
     <div class="text-subtitle-1 text-medium-emphasis mb-4">{{t.competenceProfile}}</div>
 
-    <form @submit.prevent>
+    <form @submit.prevent="onApply" ref="formRef">
       <div v-for="(competence ,index) in applicationStore.competences" :key="index">
         <v-select
           :label="t.competence"
@@ -12,6 +12,7 @@
           variant="outlined"
           density="compact"
           class="mb-6"
+          :rules="[requiredRule]"
         />     
 
         <v-text-field
@@ -24,6 +25,7 @@
           variant="outlined"
           density="compact"
           class="mb-2"
+          :rules="[requiredRule, experienceRule]"
         />
 
         <v-btn icon 
@@ -78,8 +80,8 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { useApplicationStore } from "@/stores/applicationStore"; // Or create a separate register store
-import { inject } from 'vue' //for dictionary
+import { useApplicationStore } from "@/stores/profileStore"; // Or create a separate register store
+import { inject,computed } from 'vue' //for dictionary
 import { mdiPlus, mdiDelete } from "@mdi/js"
 
 
@@ -92,6 +94,23 @@ import { mdiPlus, mdiDelete } from "@mdi/js"
     const availability = ref<string[]>([])
 
     const applicationStore = useApplicationStore()
+    const formRef = ref()
+
+    const requiredRule = (v: any) =>
+      !!v || t.value?.allFieldsRequired || "Required";
+
+    const experienceRule = (v: any) => {
+      if (!v) return t.value?.allFieldsRequired;
+
+      const num = Number(v);
+      if (isNaN(num)) return t.value?.numberCheck;
+
+      if (num < 0) return t.value?.numberCheck;
+
+
+      return true;
+    };
+
 
     if(applicationStore.competences.length === 0){
         applicationStore.addEmptyCompetence()
@@ -119,8 +138,26 @@ import { mdiPlus, mdiDelete } from "@mdi/js"
         }
     };
 
+    const isValid = computed(() => {
+      if (applicationStore.competences.length === 0) return false;
+      if (applicationStore.availability.length === 0) return false;
+
+      const competencesValid = applicationStore.competences.every(c =>
+        c.competenceType && c.competenceTime
+      );
+
+      const availabilityValid = applicationStore.availability.every(a =>
+        a.from && a.to
+      );
+
+      return competencesValid && availabilityValid;
+    });
+
 
     const onApply = async() =>{
+      const {valid} = await formRef.value.validate()
+
+      if(!valid) return
         try {
             await applicationStore.submitApplicationForm();
             window.location.reload()

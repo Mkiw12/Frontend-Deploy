@@ -12,7 +12,7 @@
 import ApplicationBox from "@/components/ApplicationBox.vue";
 import ApplicationInfo from "@/components/ApplicationInfo.vue";
 import ProfileApplicationBox from "@/components/ProfileApplicationBox.vue";
-import { useApplicationStore } from "@/stores/applicationStore";
+import { useApplicationStore } from "@/stores/profileStore";
 import { onMounted, computed } from "vue";
 
 const applicationStore = useApplicationStore()

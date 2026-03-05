@@ -75,4 +75,5 @@ export default {
   successMessage:"Ändringar sparade",
   cancelLabel: "Avbryt",
   changePersonalInfo:"Spara Ändringar",
+  numberCheck:"Måste vara ett positivt tal"
 };

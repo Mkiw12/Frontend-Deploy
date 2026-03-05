@@ -96,16 +96,7 @@
         {{ error }}
       </v-alert>
     </v-form>
-    <v-alert
-      v-if="applicationStore.successMessage"
-      type="success"
-      variant="tonal"
-      color="success"
-      class="mt-4"
-      closable
-    >
-      {{ t.successMessage }}
-    </v-alert>
+
     <v-alert
       v-if="applicationStore.error"
       type="error"
@@ -121,7 +112,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, inject } from "vue";
-import { useApplicationStore } from "@/stores/applicationStore";
+import { useApplicationStore } from "@/stores/profileStore";
 import { formatPersonNumber, isValidPersonNumberFormatted } from "@/utility/personNumber";
 
 const applicationStore = useApplicationStore();

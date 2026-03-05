@@ -66,15 +66,6 @@
       {{ error }}
     </v-alert>
 
-    <v-alert
-      v-if="applicationStore.successMessage"
-      type="success"
-      variant="tonal"
-      class="mt-4"
-      closable
-    >
-      {{ t.successMessage }}
-    </v-alert>
 
     <v-alert
       v-if="applicationStore.error"
@@ -91,7 +82,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, inject } from "vue";
-import { useApplicationStore } from "@/stores/applicationStore";
+import { useApplicationStore } from "@/stores/profileStore";
 
 const applicationStore = useApplicationStore();
 const t = inject<any>("t");

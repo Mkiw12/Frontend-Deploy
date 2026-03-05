@@ -193,7 +193,7 @@ async function updateHandlingStatus(status, applicationDTO){
      * @param {*} applicationDTO relevant användar info
      * @returns all competence profile för relevant person
      */
-    async function getCompetenceProfile(client, applicationDTO){
+    async function getCompeteceProfile(client, applicationDTO){
         try{
             const res = await client.query(
                 `select competence_id, years_of_experience 

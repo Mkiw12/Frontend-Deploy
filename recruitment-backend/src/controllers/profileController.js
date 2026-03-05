@@ -1,6 +1,6 @@
 const ApplicationDTO = require("../domain/ApplicationDTO");
 const UserDTO = require("../domain/UserDTO");
-const { Application } = require("../services/applicationService");
+const { Application } = require("../services/profileService");
 const authService = require("../services/authService");
 
 /**

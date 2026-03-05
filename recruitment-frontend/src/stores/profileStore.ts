@@ -1,7 +1,7 @@
 
 import { defineStore } from "pinia";
 import { register } from "@/api/authApi";
-import { submitApplication, fetchApplication , submitPI} from "@/api/applicationApi";
+import { submitApplication, fetchApplication , submitPI} from "@/api/profileAPI";
 import { renderToString } from "vue/server-renderer";
 import { useAuthStore } from "./authStore";
 
