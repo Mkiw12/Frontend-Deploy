@@ -111,15 +111,25 @@ async function updateHandlingStatus(status, applicationDTO){
      * @returns true if records exist else false
      */
     async function checkForApplication(client, applicationDTO){
-        
+        try{
+            const result = await client.query(
+                `select 1 from person_application_status where person_id=$1`,
+                [applicationDTO.person_id]
+            )
 
-            const result = await client.query(`select * from person_application_status where person_id=$1`, 
-                [applicationDTO.person_id])
-                return{
-                    success: true,
-                    exists: result.rows.length > 0
-                }
-        
+            return {
+                success: true,
+                exists: result.rows.length > 0
+            }
+
+        } catch(error){
+            console.error("DATABASE ERROR checkForApplication:", error)
+
+            return {
+                success: false,
+                error: "DATABASE_ERROR"
+            }
+        }
     }
 
 
@@ -152,15 +162,29 @@ async function updateHandlingStatus(status, applicationDTO){
      * @returns alla availabilities för relevant person
      */
     async function getAvailability(client, applicationDTO){
-        const res= await client.query(
-                                    `select 
-                                    from_date::text AS from_date,
-                                    to_date::text AS to_date
-                                    from availability 
-                                where person_id = $1;`,
-                            [applicationDTO.person_id])
+        try{
+            const res = await client.query(
+                `select 
+                    from_date::text AS from_date,
+                    to_date::text AS to_date
+                from availability 
+                where person_id = $1`,
+                [applicationDTO.person_id]
+            )
 
-        return res
+            return {
+                success: true,
+                rows: res.rows
+            }
+
+        } catch(error){
+            console.error("DATABASE ERROR getAvailability:", error)
+
+            return {
+                success: false,
+                error: "DATABASE_ERROR"
+            }
+        }
     }
 
     /**
@@ -169,12 +193,28 @@ async function updateHandlingStatus(status, applicationDTO){
      * @param {*} applicationDTO relevant användar info
      * @returns all competence profile för relevant person
      */
-    async function getCompeteceProfile(client, applicationDTO){
-       const res=  await client.query(`select competence_id, years_of_experience 
-                            from competence_profile 
-                            where person_id = $1;`,
-                            [applicationDTO.person_id])
-        return res
+    async function getCompetenceProfile(client, applicationDTO){
+        try{
+            const res = await client.query(
+                `select competence_id, years_of_experience 
+                from competence_profile 
+                where person_id = $1`,
+                [applicationDTO.person_id]
+            )
+
+            return {
+                success: true,
+                rows: res.rows
+            }
+
+        }catch(error){
+            console.error("DATABASE ERROR getCompetenceProfile:", error)
+
+            return {
+                success:false,
+                error:"DATABASE_ERROR"
+            }
+        }
     }
 
     /**

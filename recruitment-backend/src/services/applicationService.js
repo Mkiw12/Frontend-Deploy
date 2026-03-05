@@ -34,20 +34,6 @@ class Application{
 
     }
 
-    /**
-     * sätter hanldingStat till accepterad
-     */
-    accept(){
-        this.handlingState=applicationStat.ACCEPTED
-    }
-
-
-    /**
-     * sätter handlingStat till rejected
-     */
-    reject(){
-        this.handlingState = applicationStat.REJECTED
-    }
 
     /**
      * denna funktion mappar competenceType så som vi har det i databasen
@@ -137,38 +123,7 @@ class Application{
                 }
             }
         }   
-/**
- * denna funktion ändrar handlingstatus i databasen till ACCEPTED
- * @param {*} applicationDTO information från användare
- * @returns ifall uppdateringen lyckades samt person_id
- */
-    async acceptApplication(applicationDTO){
-        try{
-            this.accept()
-            return await updateHandlingStatus(this.handlingState, applicationDTO)
-        }catch(error){
-            return {
-                success: false,
-                error: error.message
-            }
-        }
 
-    }
-/**
- * denna funktion ändrar handlingstatus i databasen till REJECTED
- * @param {*} applicationDTO information från användare
- * @returns ifall vi uppdateringen lyckades samt person_id
- */
-    async rejectApplication(applicationDTO){
-        try{
-            return await updateHandlingStatus(applicationStat.REJECTED, applicationDTO)
-        } catch(error){
-            return{
-                success: false,
-                error: error.message
-            }
-        }
-    }
 
     /**
      * denna funktion säger till repository att fråga

@@ -296,26 +296,27 @@ export const useApplicationStore = defineStore("applicationForm", {
         
 
             async fetchApplication() {
-        if (!this.personalInfo.person_id) return;
+                    this.error=null
+            if (!this.personalInfo.person_id) return;
 
-        this.isLoading = true;
+            this.isLoading = true;
 
-        try {
-            const res = await fetchApplication(this.personalInfo.person_id);
-            if (res.data.success) {
-            this.hasApplication = true;
-            this.isEditingApplication = false
-            this.application = {
-                competences: res.data.competenceProfile.map((c: any) => ({
-                name: c.competenceType,
-                yearsOfExperience: Number(c.competenceTime)
-                })),
+            try {
+                const res = await fetchApplication(this.personalInfo.person_id);
+                if (res.data.success) {
+                this.hasApplication = true;
+                this.isEditingApplication = false
+                this.application = {
+                    competences: res.data.competenceProfile.map((c: any) => ({
+                    name: c.competenceType,
+                    yearsOfExperience: Number(c.competenceTime)
+                    })),
 
-                availability: res.data.availability.map((a: any) => ({
-                fromDate: a.from_date.split("T")[0], // tar bort tid
-                toDate: a.to_date.split("T")[0]
-                }))
-            };
+                    availability: res.data.availability.map((a: any) => ({
+                    fromDate: a.from_date.split("T")[0], // tar bort tid
+                    toDate: a.to_date.split("T")[0]
+                    }))
+                };
 
             } else {
             this.hasApplication = false;
@@ -324,10 +325,10 @@ export const useApplicationStore = defineStore("applicationForm", {
             }
 
         } catch (e) {
-            this.error = "Failed to fetch application";
-            this.hasApplication = false;
-            this.application = null;
-        }finally {
+        this.error = "Failed to fetch application";
+        this.hasApplication = false;
+        this.application = null;
+    }finally {
             this.isLoading = false;
         }
         }
