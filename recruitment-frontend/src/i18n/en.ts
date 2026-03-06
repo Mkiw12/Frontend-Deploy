@@ -85,5 +85,8 @@ export default {
   resubmitLabel: "RESUBMIT",
   successMessagePI:"Information Changed successfully!",
   numberCheck:"Must be a positive number",
-  
+  fetchUserInfoError: "We couldn't load your profile information.",
+  submitApplicationError: "There was a problem submitting your application. Please try again.",
+  submitPersonalInfoError: "We couldn't update your personal information.",
+  fetchApplicationError: "Failed to retrieve your application data.",
 };

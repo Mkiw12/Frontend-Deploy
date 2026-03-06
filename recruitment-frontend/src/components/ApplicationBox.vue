@@ -2,7 +2,7 @@
   <v-card class="mx-auto pa-12 pb-8" elevation="8" max-width="500" rounded="lg">
     <div class="text-subtitle-1 text-medium-emphasis mb-4">{{t.competenceProfile}}</div>
 
-    <form @submit.prevent="onApply" ref="formRef">
+    <v-form @submit.prevent="onApply" ref="formRef">
       <div v-for="(competence ,index) in applicationStore.competences" :key="index">
         <v-select
           :label="t.competence"
@@ -71,10 +71,7 @@
         </v-btn>
       </div>
 
-      <v-alert v-if="error" type="error" class="mt-4" dense>
-        {{ error }}
-      </v-alert>
-    </form>
+    </v-form>
   </v-card>
 </template>
 
@@ -88,10 +85,8 @@ import { mdiPlus, mdiDelete } from "@mdi/js"
 
 
 
-    const error = ref<string | null>(null);
     const t = inject<any>("t");
 
-    const availability = ref<string[]>([])
 
     const applicationStore = useApplicationStore()
     const formRef = ref()
@@ -160,9 +155,13 @@ import { mdiPlus, mdiDelete } from "@mdi/js"
       if(!valid) return
         try {
             await applicationStore.submitApplicationForm();
-            window.location.reload()
-        } catch (e) {
-            error.value = t.genericError
+
+            await applicationStore.fetchApplication()
+
+            applicationStore.isEditingApplication = false
+
+          } catch (e) {
+          applicationStore.error="genericError"
         }
     };
 
@@ -170,7 +169,7 @@ import { mdiPlus, mdiDelete } from "@mdi/js"
     const cancelForm = () => {
       applicationStore.isEditingApplication = false
     
-    error.value = null;
+      applicationStore.error = null;
 };
 
 

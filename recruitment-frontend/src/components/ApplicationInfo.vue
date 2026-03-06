@@ -92,21 +92,10 @@
         {{ t.cancelLabel  }}
       </v-btn>
     </div>
-      <v-alert v-if="error" type="error" class="mt-4" variant="tonal">
-        {{ error }}
-      </v-alert>
+
     </v-form>
 
-    <v-alert
-      v-if="applicationStore.error"
-      type="error"
-      variant="tonal"
-      color="error"
-      class="mt-4"
-      closable
-    >
-      {{ t.profileError }}
-    </v-alert>
+
   </v-card>
 </template>
 
@@ -117,7 +106,6 @@ import { formatPersonNumber, isValidPersonNumberFormatted } from "@/utility/pers
 
 const applicationStore = useApplicationStore();
 const t = inject<any>("t");
-const error = ref<string | null>(null);
 const isEditing = ref(false); 
 const originalPersonalInfo = ref<any>(null);
   const formRef = ref();
@@ -179,7 +167,7 @@ const cancelEdit = () => {
   console.log("originalState: ", originalPersonalInfo)
   applicationStore.personalInfo = JSON.parse(JSON.stringify(originalPersonalInfo.value));
   isEditing.value = false;
-  error.value = null;
+  applicationStore.error = null;
 };
 
 const onSubmit = async () => {
@@ -191,7 +179,7 @@ const onSubmit = async () => {
     saveOriginalState(); // Update the "original" to the new values
     isEditing.value = false; // Switch back to read-only view
   } catch (e) {
-    error.value = t.genericError;
+    applicationStore.error ="genericError";
   }
 };
 </script>

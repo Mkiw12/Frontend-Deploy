@@ -75,5 +75,9 @@ export default {
   successMessage:"Ändringar sparade",
   cancelLabel: "Avbryt",
   changePersonalInfo:"Spara Ändringar",
-  numberCheck:"Måste vara ett positivt tal"
+  numberCheck:"Måste vara ett positivt tal",
+  fetchUserInfoError: "Kunde inte hämta dina personliga uppgifter",
+  submitApplicationError: "Kunde inte spara din ansökan, var god försök igen",
+  submitPersonalInfoError: "Kunde inte spara dina ändrade uppgifter, var god försök igen",
+  fetchApplicationError: "Kunde inte hämta tidigare ansökan.",
 };

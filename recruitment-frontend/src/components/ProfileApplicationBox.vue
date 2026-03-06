@@ -57,25 +57,7 @@
       </v-list>
     </div>
 
-    <v-alert
-      v-if="error"
-      type="error"
-      class="mt-4"
-      variant="tonal"
-    >
-      {{ error }}
-    </v-alert>
-
-
-    <v-alert
-      v-if="applicationStore.error"
-      type="error"
-      variant="tonal"
-      class="mt-4"
-      closable
-    >
-      {{ t.profileError }}
-    </v-alert>
+    
   </v-card>
 </template>
 
@@ -86,7 +68,6 @@ import { useApplicationStore } from "@/stores/profileStore";
 
 const applicationStore = useApplicationStore();
 const t = inject<any>("t");
-const error = ref<string | null>(null);
 const isEditing = ref(false); // Controls the view toggle
 const application = computed(() => applicationStore.application)
 

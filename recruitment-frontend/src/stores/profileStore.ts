@@ -243,13 +243,13 @@ export const useApplicationStore = defineStore("applicationForm", {
                     this.hasApplication = true;
                     return true;
                 } else {
-                    this.error = "Application submission failed";
+                    this.error = "submitApplicationError";
                     this.hasApplication = false;
                     return false;
                 }
 
             } catch(error){
-                this.error = "Network error while submitting application";
+                this.error = "submitApplicationError";
                 this.hasApplication = false;
                 return false;
             }
@@ -272,19 +272,15 @@ export const useApplicationStore = defineStore("applicationForm", {
                 })
 
                 if(res.data.success){
-                    this.successMessage = "Profile updated successfully"
+                    this.successMessage = "successMessage"
                     setTimeout(() => {
                         this.successMessage = null;
                     }, 3000);
                 } else{
-                        this.error = "Något gick fel";
-                        this.successMessage = null;
-                        setTimeout(() => {
-                        this.successMessage = null;
-                    }, 3000);
+                        this.error = "submitPersonalInfoError";
                 }
             }catch (error){
-                this.error = "kunde inte spara profilen"
+                this.error = "submitPersonalInfoError"
             }
         },
 
@@ -325,7 +321,7 @@ export const useApplicationStore = defineStore("applicationForm", {
             }
 
         } catch (e) {
-        this.error = "Failed to fetch application";
+        this.error = "fetchApplicationError";
         this.hasApplication = false;
         this.application = null;
     }finally {
