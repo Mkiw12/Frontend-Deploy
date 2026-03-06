@@ -105,6 +105,7 @@ async function fetchApplication(req, res){
         }
 
         const { firstName, lastName, email, personalNumber } = req.body
+        const dto = new UserDTO(req.body)
 
         //same identity hijacking check as earlier. compare cookie identity (req.user.person_id) to 
         //purported identity (dto.person_id).
@@ -133,10 +134,7 @@ async function fetchApplication(req, res){
                 error: "INVALID_EMAIL"
             })
         }
-
-
-        const dto = new UserDTO(req.body)
-        
+    
         const result = await authService.updatePI(dto);
 
         if (!result.success) {
