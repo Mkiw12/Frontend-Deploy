@@ -57,6 +57,7 @@
         data-cy="apply-button"
           color="primary"
           class="flex-grow-1"
+          :disabled="!isValid"
           @click="onApply"
         >
           {{ t.apply }}
@@ -94,6 +95,13 @@ import { mdiPlus, mdiDelete } from "@mdi/js"
 
     const applicationStore = useApplicationStore()
     const formRef = ref()
+
+    const availabilityRule = (range: any[]) => {
+      if (!range || range.length !== 2) {
+        return t.value?.selectDateRange || "Please select a start and end date"
+      }
+      return true
+    }
 
     const requiredRule = (v: any) =>
       !!v || t.value?.allFieldsRequired || "Required";
@@ -146,7 +154,7 @@ import { mdiPlus, mdiDelete } from "@mdi/js"
       );
 
       const availabilityValid = applicationStore.availability.every(a =>
-        a.from && a.to
+        a.from !== null && a.to !==null
       );
 
       return competencesValid && availabilityValid;
@@ -157,6 +165,23 @@ import { mdiPlus, mdiDelete } from "@mdi/js"
       const {valid} = await formRef.value.validate()
 
       if(!valid) return
+      if(!isValid.value){
+        applicationStore.error = "selectDateRange"
+        return
+      }
+
+      for(let i = 0; i < applicationStore.availability.length; i++){
+        const range = applicationStore.getAvailabilityRange(i)
+
+        const ruleResult = availabilityRule(range)
+
+        if(ruleResult !== true){
+          applicationStore.error = ruleResult
+          return
+        }
+      }
+
+  
         try {
             await applicationStore.submitApplicationForm();
 
