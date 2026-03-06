@@ -138,7 +138,7 @@ async function me(req) {
   if(!token){
     return {
     ok: true,
-    status: 200,
+    status: 401,
     user: null,
   };
   }
