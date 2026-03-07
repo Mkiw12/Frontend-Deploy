@@ -89,5 +89,6 @@ export default {
   fetchUserInfoError: "We couldn't load your profile information.",
   submitApplicationError: "There was a problem submitting your application. Please try again.",
   submitPersonalInfoError: "We couldn't update your personal information.",
-  fetchApplicationError: "Failed to retrieve your application data.",
+  fetchApplicationError: "No previous application could be found",
+  availabilityDifferentDates:"Start and end date must be different"
 };
